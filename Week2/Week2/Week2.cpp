@@ -3,21 +3,26 @@
 
 using namespace std;
 
+void printMessage(string message);
+int cubed(int cubeIn);
+
 int main()
 {
-	// Challenge 1 - Take in 3 numbers and return the average and sum.
-	// Prompt user for three numbers
-	cout << "For a Sum and Average, please input 3 numbers, separated by hitting ENTER.\n";
-	// Get the Numbers
-	float firstNum;
-	float secondNum;
-	float thirdNum;
-	cin >> firstNum >> secondNum >> thirdNum;
-	// Calculate the sum
-	float sumTotal = firstNum + secondNum + thirdNum;
-	// Calculate the avg
-	float avg = sumTotal / 3;
-	
-	cout << "Value 1 = " << firstNum << endl << " Value 2 = " << secondNum << endl << " Value 3 = " << thirdNum << endl;
-	cout << "Sum total = " << sumTotal << endl << "Average = " << avg;
+	// Challenge 2 - write a program that returns the value of an input, cubed.
+	// Prompt for the number
+	printMessage("Input number that you would like cubed.\n");
+	// Get the Number
+	int cubeIn;
+	cin >> cubeIn;
+	int r = cubed(cubeIn);
+	cout << cubeIn << "^ 3 = " << r << endl;
+}
+void printMessage(string message)
+{
+	cout << message << endl;
+}
+
+int cubed(int cubeIn)
+{
+	return cubeIn * cubeIn * cubeIn;
 }

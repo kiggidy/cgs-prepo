@@ -18,6 +18,6 @@ int main()
 	// Calculate the avg
 	float avg = sumTotal / 3;
 
-	cout << "Value 1 = " << firstNum << endl << " Value 2 = " << secondNum << endl << " Value 3 = " << thirdNum << endl;
+	cout << "Value 1 = " << firstNum << endl << "Value 2 = " << secondNum << endl << "Value 3 = " << thirdNum << endl;
 	cout << "Sum total = " << sumTotal << endl << "Average = " << avg;
 }

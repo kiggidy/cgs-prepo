@@ -15,7 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="StarterTestConsoleApp.cpp">
+    <ClCompile Include="Week2-Challenge-Cubed-Input.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

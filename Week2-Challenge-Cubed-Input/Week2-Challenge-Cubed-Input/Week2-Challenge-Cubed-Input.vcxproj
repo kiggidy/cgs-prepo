@@ -21,8 +21,8 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{533f7b40-32c9-412a-bb43-68b8602a6acd}</ProjectGuid>
-    <RootNamespace>StarterTestConsoleApp</RootNamespace>
+    <ProjectGuid>{2cca0b13-8cc2-477b-a667-2cc7ac690fa8}</ProjectGuid>
+    <RootNamespace>Week2ChallengeCubedInput</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -127,7 +127,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="StarterTestConsoleApp.cpp" />
+    <ClCompile Include="Week2-Challenge-Cubed-Input.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -3,26 +3,39 @@
 
 using namespace std;
 
-void printMessage(string message);
-int cubed(int cubeIn);
+template <typename T>
+T Add(T a, T b);
+
+template <typename T>
+void DisplayMsg(string message, T number);
+
+void DisplayMsg(string message);
+
 
 int main()
 {
-	// Challenge 2 - write a program that returns the value of an input, cubed.
-	// Prompt for the number
-	printMessage("Input number that you would like cubed.\n");
-	// Get the Number
-	int cubeIn;
-	cin >> cubeIn;
-	int r = cubed(cubeIn);
-	cout << cubeIn << "^ 3 = " << r << endl;
+	int i = Add(1, 2);
+	float f = Add(3.3f, 2.4f);
+	double d = Add(4.4, 6.7);
+	DisplayMsg("Testing overload");
+	DisplayMsg("Integer Addition = ", i);
+	DisplayMsg("Float Addition = ", f);
+	DisplayMsg("Double Addition = ", d);
 }
-void printMessage(string message)
+
+template <typename T>
+T Add(T a, T b)
+{
+	return a + b;
+}
+
+void DisplayMsg(string message)
 {
 	cout << message << endl;
 }
 
-int cubed(int cubeIn)
+template <typename T>
+void DisplayMsg(string message, T number)
 {
-	return cubeIn * cubeIn * cubeIn;
+	cout << message << number << endl;
 }

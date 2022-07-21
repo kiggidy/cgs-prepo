@@ -20,11 +20,7 @@ void LeapYearCheck(int y)
     bool isDivisibleByFour = ((y % 4) == 0); //True when divisible by four, is a leap year
     bool isDivisibleByHundred = ((y % 100) == 0); //True when divisible by 100, is not a leap year
     bool isDivisibleByFourHundred = ((y % 400) == 0); //True when divisible by four hundred, is a leap year
-    if (isDivisibleByFour && !isDivisibleByHundred)
-    {
-        DisplayMsg("Yes, this is a leap year.");
-    }
-    else if (isDivisibleByFourHundred)
+    if ((isDivisibleByFour && !isDivisibleByHundred) || isDivisibleByFourHundred)
     {
         DisplayMsg("Yes, this is a leap year.");
     }

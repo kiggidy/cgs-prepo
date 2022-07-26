@@ -4,130 +4,30 @@
 using namespace std;
 
 
-class Vehicle
-{
-protected:
-	string m_Make;
-	string m_Model;
-	float  m_Miles;
+//dataType* userIdentifier = someAddress;
+// 
 
-public:
-	Vehicle(string make, string model, float miles)
-		:m_Make(make)
-		, m_Model(model)
-		, m_Miles(miles)
-	{
-	
-	}
-	Vehicle()
-	{
-	
-	}
-
-	virtual void Drive()
-	{
-		cout << "Today you are going to drive....something I swear." << endl;
-	}
-};
-
-class Car : public Vehicle
-{
-	bool m_IsDented;
-
-public:
-	void setCarInformation()
-	{
-		m_Make = "Subaru";
-		m_Model = "2018 Outback";
-		m_Miles = 27779;
-	}
-
-	Car(string make, string model, float miles)
-		: Vehicle(make, model, miles)
-		, m_IsDented(false)
-	{
-		
-	}
-
-	Car()
-	{
-		setCarInformation();
-	}
-
-	void Drive() override
-	{
-		cout << "Today we are driving a " << m_Make << " " << m_Model << " with " << m_Miles << " miles on it!" << endl;
-	}
-};
-
-class Plane : public Vehicle
-{
-	int m_HoursLogged;
-
-public:
-	void SetPlaneInformation()
-	{
-		m_Make = "Airbus";
-		m_Model = "A321";
-		m_Miles = 357895;
-	}
-
-	Plane(string make, string model, float miles, int hours)
-		: Vehicle(make, model, miles)
-		, m_HoursLogged(hours)
-	{
-
-	}
-
-	Plane()
-	{
-		SetPlaneInformation();
-	}
-
-	void Drive() override
-	{
-		cout << "Today we are flying a " << m_Make << " " << m_Model << " with " << m_Miles << " miles on it!" << endl;
-	}
-};
-
-class Boat : public Vehicle
-{
-	bool m_IsSinking;
-
-public:
-	void SetBoatInformation()
-	{
-		m_Make = "Benetau";
-		m_Model = "2023 Swift Trawler";
-		m_Miles = 200.5;
-	}
-
-	Boat(string make, string model, float miles, int hours)
-		: Vehicle(make, model, miles)
-		, m_IsSinking(false)
-	{
-		
-	}
-
-	Boat()
-	{
-		SetBoatInformation();
-	}
-
-	void Drive() override
-	{
-		cout << "Today we are piloting a " << m_Make << " " << m_Model << " with " << m_Miles << " miles on it!" << endl;
-	}
-};
 
 int main()
 {
-	Vehicle vehicle;
-	Car car;
-	Plane plane;
-	Boat boat;
+	bool isPlayerAlive = true;
+	bool isGameOver = false;
+	//Change Pointer Addresses
+	bool* pToBool = &isPlayerAlive; // pToBool points to the address of isPlayerAlive
+	pToBool = &isGameOver; // pToBool now points to the address of isGameOVer
+	pToBool = nullptr; //pToBool points to nothing, no memory address now - it is dereferenced?
 
-	car.Drive();
-	plane.Drive();
-	boat.Drive();
+	//Access Stored values
+	int var = 10;
+	//pointers only store addresses
+	int* ptr = &var;
+	//dereference the pointer, this gets the value of it
+	int newVar = *ptr; // ~= newVar = 10, this would update if we update var
+	//derefence ptr and store 20 
+	*ptr = 20; //var is now also 20
+	//You cannot access a value with a nullptr - it doesn't point to anything, 
+	//derefencing will give an exception
+
+	//good practice to set an if statement to check that ptr != Null
+
 }

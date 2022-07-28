@@ -139,16 +139,14 @@ bool GameplayState::Update(bool processInput)
 
 		}
 	}
-	else
+	if (m_hitReset)
 	{
-		if (m_hitReset)
-		{
-			m_hitReset = false;
-			//restart level
-			Load();
-			
-		}
+		m_beatLevel = false;
+		m_hitReset = false;
+		//restart level
+		Load();
 	}
+
 
 	return false;
 }
@@ -229,9 +227,10 @@ void GameplayState::HandleCollision(int newPlayerX, int newPlayerY)
 		{
 			ResetButton* collidedResetButton = dynamic_cast<ResetButton*>(collidedActor);
 			assert(collidedResetButton);
+			collidedResetButton->Remove();
 			m_player.SetPosition(newPlayerX, newPlayerY);
 			m_hitReset = true;
-
+			break;
 		}
 		case ActorType::Goal:
 		{

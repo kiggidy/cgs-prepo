@@ -9,5 +9,5 @@ ResetButton::ResetButton(int x, int y)
 
 void ResetButton::Draw()
 {
-	std::cout << (char)12;
+	std::cout << (char)30;
 }

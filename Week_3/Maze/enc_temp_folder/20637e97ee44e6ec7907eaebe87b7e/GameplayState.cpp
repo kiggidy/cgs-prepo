@@ -231,7 +231,6 @@ void GameplayState::HandleCollision(int newPlayerX, int newPlayerY)
 			/*
 				BreakPoint added to step through the logic of the user colliding with the reset button,
 				where next we expect m_reset to be changed to true, break out of the cases, and the level to reload (line 147)
-				At this point in time the 
 			*/
 			m_hitReset = true;
 			break;

@@ -1,11 +1,11 @@
 #include <iostream>
 #include <thread>
 static int HeapInt = 0;
-bool ShouldEndThread = false;
+bool quitOut = false;
+int threadVar = 0;
 void HelloWordThread()
 {
-    int threadVar = 0;
-    while (!ShouldEndThread)
+    while (!quitOut)
     {
         threadVar++;
         if (threadVar > 1000)
@@ -18,9 +18,21 @@ void HelloWordThread()
 
 int main()
 {
-    HeapInt = 8;
     std::cout << "Hello World!\n";
+    char userInput;
     std::thread Hello(HelloWordThread);
+    
+    
+    while (!quitOut)
+    {
+        std::cout << "Press Any Key to display counter" << std::endl;
+        std::cout << "Press Q to quit" << std::endl;
+        std::cin >> userInput;
+        quitOut = (userInput == 'q' || userInput == 'Q');
+        std::cout << "Threadvar: " << threadVar << std::endl;
+    }
+
     Hello.join();
+
     return 0;
 }

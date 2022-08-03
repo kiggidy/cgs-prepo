@@ -36,7 +36,7 @@ int main()
 	SetPath(pathRequest);
 
 	//sort array to priority queue
-	
+
 	// A* against pathRequest
 	char* openNodes = new char[numPoints];
 	char* closedNodes = new char[numPoints];
@@ -46,9 +46,9 @@ int main()
 	{
 		/*
 			add nodePath, totalCost->PREV_placeholder
-			if placeholder < PREV_PLACEHOLDER 
+			if placeholder < PREV_PLACEHOLDER
 			{
-				pushfront 
+				pushfront
 			}
 			else
 			{
@@ -84,7 +84,7 @@ void GetInputs(int numPoints)
 	//pass list to coord str to str
 }
 
-void CoordStrToStruct(string input, int index) 
+void CoordStrToStruct(string input, int index)
 {
 	// Take the strings from input and convert them into structs
 	string placeHolder;
@@ -98,15 +98,15 @@ void CoordStrToStruct(string input, int index)
 	input = input.substr(input.find(",", 0) + 1, input.length());
 	tempEdge.y = placeHolder[0];
 
-	tempEdge.cost = (int) input[0];
-	
+	tempEdge.cost = (int)input[0];
+
 	g_mapEdges[index] = tempEdge;
 }
 
-void SetPath(string input) 
+void SetPath(string input)
 {
 	string placeHolder;
-	
+
 	placeHolder = input.substr(0, input.find(",", 0));
 	input = input.substr(input.find(",", 0) + 1, input.length());
 	g_startPoint = placeHolder[0];

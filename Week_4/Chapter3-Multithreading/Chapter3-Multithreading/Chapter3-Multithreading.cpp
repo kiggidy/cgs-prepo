@@ -1,38 +1,101 @@
 #include <iostream>
 #include <thread>
-static int HeapInt = 0;
-bool quitOut = false;
-int threadVar = 0;
-void HelloWordThread()
+#include <chrono>
+#include <mutex>
+
+using namespace std;
+
+bool DidQuit = false;
+bool ShouldDecrementLife = false;
+std::mutex Mutex;
+
+struct Character
 {
-    while (!quitOut)
+    float Position = 0.0f;
+    int Score = 0;
+    int Lives = 1;
+
+    void DisplayStats()
     {
-        threadVar++;
-        if (threadVar > 1000)
+        cout << "Lives: " << Lives << endl;
+    }
+};
+
+Character Player;
+
+void UpdateCharacter1()
+{
+    while (!DidQuit)
+    {
+        if (ShouldDecrementLife)
         {
-            threadVar = 0;
+            if (Player.Lives > 0)
+            {
+                //this_thread::sleep_for(chrono::milliseconds(500));
+                this_thread::yield();
+                --Player.Lives;
+            }
         }
     }
-    std::cout << "Hello World THREAD!\n";
 }
+
+void UpdateCharacter2()
+{
+    while (!DidQuit)
+    {
+        if (ShouldDecrementLife)
+        {
+            std::lock_guard<std::mutex> Guard(Mutex);
+            if (Player.Lives > 0)
+            {
+                //this_thread::sleep_for(chrono::milliseconds(500));
+                this_thread::yield();
+                --Player.Lives;
+            }
+        }
+    }
+}
+
+void ProcessInput()
+{
+    while (!DidQuit)
+    {
+        cout << "'a' to decrement player life" << endl;
+        cout << "'d' to display player stats" << endl;
+        cout << "'q' to quit" << endl;
+
+        char UserInput;
+        cin >> UserInput;
+
+        switch (UserInput)
+        {
+        case 'a':
+            ShouldDecrementLife = true;
+            break;
+        case 'd':
+            Player.DisplayStats();
+            break;
+        case 'q':
+            DidQuit = true;
+            break;
+        default:
+            break;
+        }
+
+        DidQuit = (UserInput == 'q');
+    }
+}
+
 
 int main()
 {
-    std::cout << "Hello World!\n";
-    char userInput;
-    std::thread Hello(HelloWordThread);
-    
-    
-    while (!quitOut)
-    {
-        std::cout << "Press Any Key to display counter" << std::endl;
-        std::cout << "Press Q to quit" << std::endl;
-        std::cin >> userInput;
-        quitOut = (userInput == 'q' || userInput == 'Q');
-        std::cout << "Threadvar: " << threadVar << std::endl;
-    }
+    thread InputHandler(ProcessInput);
+    thread CharacterUpdate1(UpdateCharacter1);
+    thread CharacterUpdate2(UpdateCharacter2);
 
-    Hello.join();
+    InputHandler.join();
+    CharacterUpdate1.join();
+    CharacterUpdate2.join();
 
     return 0;
 }

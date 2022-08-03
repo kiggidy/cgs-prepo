@@ -128,6 +128,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Chapter3_Algorithms_Challenges_2_And_3.cpp" />
+    <ClCompile Include="TraveledPath.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="TraveledPath.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

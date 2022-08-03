@@ -18,5 +18,13 @@
     <ClCompile Include="Chapter3_Algorithms_Challenges_2_And_3.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="TraveledPath.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="TraveledPath.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

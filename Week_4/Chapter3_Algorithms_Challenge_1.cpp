@@ -26,6 +26,7 @@ int main()
 	std::cout << "Elapsed time in seconds: " << std::chrono::duration_cast<std::chrono::seconds>(end - start).count() << " sec" << std::endl;
 	std::cout << "Array sorted: " << std::endl;
 	DisplayArray(randArray, arraySize);
+	delete randArray;
 }
 
 void DisplayArray(int arr[], int arrSize)

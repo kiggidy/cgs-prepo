@@ -38,6 +38,12 @@ int main(int argc, char** argv)
     }
     atexit(enet_deinitialize);
 
+    HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE);
+    DWORD consoleMode;
+    GetConsoleMode(h, &consoleMode);
+    consoleMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+    SetConsoleMode(h, consoleMode);
+
     int UserInput;
     
     cout << "1) Create a server" << endl;
@@ -74,6 +80,8 @@ int main(int argc, char** argv)
 
 string AskNames() 
 {
+    cin.clear();
+    cin.ignore();
     string currentName;
     cout << "Enter a name please." << endl;
     cin >> currentName;
@@ -122,16 +130,15 @@ int ServerLogic()
                 break;
             case ENET_EVENT_TYPE_RECEIVE:
                 cout << clientName << ": " << (char*)event.packet->data << endl;
+                cin.clear();
+                cin.ignore();
                 {
-                    string message = "Hello, how are you today?";
-
+                    string message;
+                    getline(cin, message);
                     if (message == "bye" || message == "Bye")
                     {
                         return 0;
                     }
-                    cout << serverName << ": " << message << endl;
-                    getline(cin, message);
-
                     if (strlen(message.c_str()) > 0)
                     {
                         ENetPacket* packet = enet_packet_create(
@@ -141,6 +148,7 @@ int ServerLogic()
                         enet_host_broadcast(server, 0, packet);
                         enet_host_flush(server);
                     }
+                    cout << serverName << ": " << message << endl;
                     EraseConsoleLine();
                 }
                 break;
@@ -193,10 +201,10 @@ int ClientLogic()
             {
             case ENET_EVENT_TYPE_RECEIVE:
                 cout << serverName << ": " << (char*)event.packet->data << endl;
-                {
-                    string message = "I am well.";
-                    
-                    cout << clientName << ": " << message << endl;
+                cin.clear();
+                cin.ignore();
+                {    
+                    string message;
                     getline(cin, message);
                     if (message == "bye" || message == "Bye")
                     {
@@ -211,6 +219,7 @@ int ClientLogic()
                         enet_host_broadcast(client, 0, packet);
                         enet_host_flush(client);
                     }
+                    cout << clientName << ": " << message << endl;
                     EraseConsoleLine();
                     
                 }

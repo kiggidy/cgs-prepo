@@ -120,8 +120,8 @@ int ServerLogic()
                 event.peer->data = (void*)("Client");
                 {
                     ENetPacket* packet = enet_packet_create(
-                        "Hello",
-                        strlen("Hello") + 1,
+                        "Hello you have connected to the server",
+                        strlen("Hello you have connected to the server") + 1,
                         ENET_PACKET_FLAG_RELIABLE);
                     enet_host_broadcast(server, 0, packet);
                     enet_host_flush(server);
@@ -129,25 +129,27 @@ int ServerLogic()
 
                 break;
             case ENET_EVENT_TYPE_RECEIVE:
-                cout << clientName << ": " << (char*)event.packet->data << endl;
+                cout << (char*)event.packet->data << endl;
                 {
                     string message;
+                    string fullPacket;
                     getline(cin, message);
                     if (message == "bye" || message == "Bye")
                     {
                         return 0;
                     }
+                    fullPacket = serverName + ": " + message;
                     if (strlen(message.c_str()) > 0)
                     {
                         ENetPacket* packet = enet_packet_create(
-                            message.c_str(),
-                            strlen(message.c_str()) + 1,
+                            fullPacket.c_str(),
+                            strlen(fullPacket.c_str()) + 1,
                             ENET_PACKET_FLAG_RELIABLE);
                         enet_host_broadcast(server, 0, packet);
                         enet_host_flush(server);
                     }
                     EraseConsoleLine();
-                    cout << serverName << ": " << message << endl;
+                    cout << fullPacket << endl;
 
                 }
                 break;
@@ -199,25 +201,28 @@ int ClientLogic()
             switch (event.type)
             {
             case ENET_EVENT_TYPE_RECEIVE:
-                cout << serverName << ": " << (char*)event.packet->data << endl;
+                cout << (char*)event.packet->data << endl;
                 {
+                    string fullPacket;
                     string message;
                     getline(cin, message);
                     if (message == "bye" || message == "Bye")
                     {
                         return 0;
                     }
-                    if (strlen(message.c_str()) > 0)
+                    fullPacket = clientName + ": " + message;
+
+                    if (strlen(fullPacket.c_str()) > 0)
                     {
                         ENetPacket* packet = enet_packet_create(
-                            message.c_str(),
-                            strlen(message.c_str()) + 1,
+                            fullPacket.c_str(),
+                            strlen(fullPacket.c_str()) + 1,
                             ENET_PACKET_FLAG_RELIABLE);
                         enet_host_broadcast(client, 0, packet);
                         enet_host_flush(client);
                     }
                     EraseConsoleLine();
-                    cout << clientName << ": " << message << endl;
+                    cout << fullPacket << endl;
                 }
 
                 enet_packet_destroy(event.packet);

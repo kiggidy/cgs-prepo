@@ -15,13 +15,16 @@ enum PacketHeaderTypes
     PHT_Invalid = 0,
     PHT_IsDead,
     PHT_Position,
-    PHT_Count
+    PHT_Count,
+    PHT_Guess
 };
 
 struct GamePacket
 {
     GamePacket() {}
+    //allows handling the type of packet - can put packet header type in base class
     PacketHeaderTypes Type = PHT_Invalid;
+
 };
 
 struct IsDeadPacket : public GamePacket
@@ -54,7 +57,7 @@ bool CreateServer()
     address.host = ENET_HOST_ANY;
     address.port = 1234;
     NetHost = enet_host_create(&address /* the address to bind the server host to */,
-        32      /* allow up to 32 clients and/or outgoing connections */,
+        2      /* allow up to 2 clients and/or outgoing connections */,
         2      /* allow up to 2 channels to be used, 0 and 1 */,
         0      /* assume any amount of incoming bandwidth */,
         0      /* assume any amount of outgoing bandwidth */);
@@ -101,6 +104,33 @@ void HandleReceivePacket(const ENetEvent& event)
                 cout << response << endl;
             }
         }
+        if (RecGamePacket->Type == PHT_Guess)
+        {
+            /*CLIENTNAME PACKET FORMAT: clientName + " guessed " + clientGuess */
+            /* if (clientGuess == gameServerRandNumber)
+                {
+                    // wrap in separate function or fit where this packet will be created...
+                    string winSequence = clientName + "'s guess of " + clientGuess + "was correct!" + endl
+                    ENetPacket* packet = enet_packet_create(
+                        winSequence.c_str(),
+                        strlen(winSequence.c_str()) + 1,
+                        ENET_PACKET_FLAG_RELIABLE);
+                    enet_host_broadcast(server, 0, packet);
+                    enet_host_flush(server);
+                }
+                else
+                {
+                    clientName PHT_Count--
+                    string winSequence = clientName + "'s guess of " + clientGuess + "was wrong :c." + endl
+                    ENetPacket* packet = enet_packet_create(
+                        winSequence.c_str(),
+                        strlen(winSequence.c_str()) + 1,
+                        ENET_PACKET_FLAG_RELIABLE);
+                    enet_host_broadcast(server, 0, packet);
+                    enet_host_flush(server);
+                }
+            */
+        }
     }
     else
     {
@@ -132,6 +162,14 @@ void BroadcastIsDeadPacket()
     delete DeadPacket;
 }
 
+//TODO TELL USERS WHO DISCONNECTED - INCLUDING IF THE SERVER DISCONNECTED
+void WelcomePlayerMessage() 
+{
+    
+}
+
+
+
 void ServerProcessPackets()
 {
     while (1)
@@ -148,6 +186,12 @@ void ServerProcessPackets()
                     << endl;
                 /* Store any relevant client information here. */
                 event.peer->data = (void*)("Client information");
+                ENetPacket* packet = enet_packet_create(
+                    "Hello you have connected to the server, this is the number guessing game.",
+                    strlen("Hello you have connected to the server, this is the number guessing game.") + 1,
+                    ENET_PACKET_FLAG_RELIABLE);
+                enet_host_broadcast(NetHost, 0, packet);
+                enet_host_flush(NetHost);
                 BroadcastIsDeadPacket();
                 break;
             case ENET_EVENT_TYPE_RECEIVE:

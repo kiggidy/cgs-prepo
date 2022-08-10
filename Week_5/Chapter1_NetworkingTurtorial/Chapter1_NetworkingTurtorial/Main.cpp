@@ -84,7 +84,7 @@ string AskNames()
     cin.ignore();
     string currentName;
     cout << "Enter a name please." << endl;
-    cin >> currentName;
+    getline(cin, currentName);
     return currentName;
 }
 
@@ -130,8 +130,6 @@ int ServerLogic()
                 break;
             case ENET_EVENT_TYPE_RECEIVE:
                 cout << clientName << ": " << (char*)event.packet->data << endl;
-                cin.clear();
-                cin.ignore();
                 {
                     string message;
                     getline(cin, message);
@@ -148,8 +146,9 @@ int ServerLogic()
                         enet_host_broadcast(server, 0, packet);
                         enet_host_flush(server);
                     }
-                    cout << serverName << ": " << message << endl;
                     EraseConsoleLine();
+                    cout << serverName << ": " << message << endl;
+                    
                 }
                 break;
             case ENET_EVENT_TYPE_DISCONNECT:
@@ -201,8 +200,6 @@ int ClientLogic()
             {
             case ENET_EVENT_TYPE_RECEIVE:
                 cout << serverName << ": " << (char*)event.packet->data << endl;
-                cin.clear();
-                cin.ignore();
                 {    
                     string message;
                     getline(cin, message);
@@ -219,9 +216,8 @@ int ClientLogic()
                         enet_host_broadcast(client, 0, packet);
                         enet_host_flush(client);
                     }
-                    cout << clientName << ": " << message << endl;
                     EraseConsoleLine();
-                    
+                    cout << clientName << ": " << message << endl;
                 }
                 
                 enet_packet_destroy(event.packet);

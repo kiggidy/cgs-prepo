@@ -4,6 +4,9 @@
 #include <conio.h>
 #include <windows.h>
 #include <assert.h>
+#include <thread>
+#include <mutex>
+#include <chrono>
 
 #include "Enemy.h"
 #include "Key.h"
@@ -15,7 +18,9 @@
 #include "Utility.h"
 #include "StateMachineExampleGame.h"
 
-using namespace std;
+using std::cout;
+using std::cin;
+using std::endl;
 
 constexpr int kArrowInput = 224;
 constexpr int kLeftArrow = 75;
@@ -61,60 +66,63 @@ void GameplayState::Enter()
 	Load();
 }
 
-bool GameplayState::Update(bool processInput)
+//Change position and item status depending on input
+void GameplayState::ProcessInput()
 {
-	if (processInput && !m_beatLevel)
+	int input = _getch();
+	int arrowInput = 0;
+	int newPlayerX = m_player.GetXPosition();
+	int newPlayerY = m_player.GetYPosition();
+
+	// One of the arrow keys were pressed
+	if (input == kArrowInput)
 	{
-		int input = _getch();
-		int arrowInput = 0;
-		int newPlayerX = m_player.GetXPosition();
-		int newPlayerY = m_player.GetYPosition();
-
-		// One of the arrow keys were pressed
-		if (input == kArrowInput)
-		{
-			arrowInput = _getch();
-		}
-
-		if ((input == kArrowInput && arrowInput == kLeftArrow) ||
-			(char)input == 'A' || (char)input == 'a')
-		{
-			newPlayerX--;
-		}
-		else if ((input == kArrowInput && arrowInput == kRightArrow) ||
-			(char)input == 'D' || (char)input == 'd')
-		{
-			newPlayerX++;
-		}
-		else if ((input == kArrowInput && arrowInput == kUpArrow) ||
-			(char)input == 'W' || (char)input == 'w')
-		{
-			newPlayerY--;
-		}
-		else if ((input == kArrowInput && arrowInput == kDownArrow) ||
-			(char)input == 'S' || (char)input == 's')
-		{
-			newPlayerY++;
-		}
-		else if (input == kEscapeKey)
-		{
-			m_pOwner->LoadScene(StateMachineExampleGame::SceneName::MainMenu);
-		}
-		else if ((char)input == 'Z' || (char)input == 'z')
-		{
-			m_player.DropKey();
-		}
-
-		// If position never changed
-		if (newPlayerX == m_player.GetXPosition() && newPlayerY == m_player.GetYPosition())
-		{
-			//return false;
-		}
-		else
-		{
-			HandleCollision(newPlayerX, newPlayerY);
-		}
+		arrowInput = _getch();
 	}
+
+	if ((input == kArrowInput && arrowInput == kLeftArrow) ||
+		(char)input == 'A' || (char)input == 'a')
+	{
+		newPlayerX--;
+	}
+	else if ((input == kArrowInput && arrowInput == kRightArrow) ||
+		(char)input == 'D' || (char)input == 'd')
+	{
+		newPlayerX++;
+	}
+	else if ((input == kArrowInput && arrowInput == kUpArrow) ||
+		(char)input == 'W' || (char)input == 'w')
+	{
+		newPlayerY--;
+	}
+	else if ((input == kArrowInput && arrowInput == kDownArrow) ||
+		(char)input == 'S' || (char)input == 's')
+	{
+		newPlayerY++;
+	}
+	else if (input == kEscapeKey)
+	{
+		m_pOwner->LoadScene(StateMachineExampleGame::SceneName::MainMenu);
+	}
+	else if ((char)input == 'Z' || (char)input == 'z')
+	{
+		m_player.DropKey();
+	}
+
+	// If position never changed
+	if (newPlayerX == m_player.GetXPosition() && newPlayerY == m_player.GetYPosition())
+	{
+		//return false;
+	}
+	else
+	{
+		HandleCollision(newPlayerX, newPlayerY, true);
+	}
+}
+
+
+void GameplayState::CheckBeatLevel()
+{
 	if (m_beatLevel)
 	{
 		++m_skipFrameCount;
@@ -128,7 +136,7 @@ bool GameplayState::Update(bool processInput)
 				Utility::WriteHighScore(m_player.GetMoney());
 
 				AudioManager::GetInstance()->PlayWinSound();
-				
+
 				m_pOwner->LoadScene(StateMachineExampleGame::SceneName::Win);
 			}
 			else
@@ -139,6 +147,10 @@ bool GameplayState::Update(bool processInput)
 
 		}
 	}
+}
+
+void GameplayState::CheckResetLevel()
+{
 	if (m_hitReset)
 	{
 		m_beatLevel = false;
@@ -146,21 +158,82 @@ bool GameplayState::Update(bool processInput)
 		//restart level
 		Load();
 	}
+}
 
+void GameplayState::RunCollisionThread()
+{
+	while (!m_beatLevel && m_player.GetLives() >= 0)
+	{
+		std::this_thread::sleep_for(std::chrono::milliseconds(500));
+		HandleCollision(m_player.GetXPosition(), m_player.GetYPosition());
+		Draw();
+	}
+}
+
+void GameplayState::RunProcessInputThread()
+{
+	while (!m_beatLevel && m_player.GetLives() >= 0)
+	{
+		ProcessInput();
+		Draw();
+	}
+}
+
+
+bool GameplayState::Update(bool processInput)
+{
+	if (processInput && !m_beatLevel)
+	{
+		std::thread helper(&GameplayState::RunCollisionThread, this);
+		std::thread helper1(&GameplayState::RunProcessInputThread, this);
+
+		helper.join();
+		helper1.join();
+	}
+
+	CheckBeatLevel();
+	CheckResetLevel();
 
 	return false;
 }
 
-void GameplayState::HandleCollision(int newPlayerX, int newPlayerY)
+void GameplayState::HandleCollision(int newPlayerX, int newPlayerY, bool processInput)
 {
-	PlaceableActor* collidedActor = m_pLevel->UpdateActors(newPlayerX, newPlayerY);
-	if (collidedActor != nullptr && collidedActor->IsActive())
+	const std::lock_guard<std::mutex> lock(m_handleColMutex);
+
+	if (processInput)
 	{
-		switch (collidedActor->GetType())
+		PlaceableActor* actor = m_pLevel->UpdateActors(newPlayerX, newPlayerY);
+		if (actor != nullptr)
 		{
+			HandleActors(actor, newPlayerX, newPlayerY);
+		}
+		else if (m_pLevel->IsSpace(newPlayerX, newPlayerY)) // no collision
+		{
+			m_player.SetPosition(newPlayerX, newPlayerY);
+		}
+		else if (m_pLevel->IsWall(newPlayerX, newPlayerY))
+		{
+			// wall collision, do nothing
+		}
+	}
+	else
+	{
+		PlaceableActor* collidedActor = m_pLevel->UpdateActors(newPlayerX, newPlayerY);
+		if (collidedActor != nullptr)
+		{
+			HandleActors(collidedActor, newPlayerX, newPlayerY);
+		}
+	}
+}
+
+void GameplayState::HandleActors(PlaceableActor* actor, int newPlayerX, int newPlayerY)
+{
+	switch (actor->GetType())
+	{
 		case ActorType::Enemy:
 		{
-			Enemy* collidedEnemy = dynamic_cast<Enemy*>(collidedActor);
+			Enemy* collidedEnemy = dynamic_cast<Enemy*>(actor);
 			assert(collidedEnemy);
 			AudioManager::GetInstance()->PlayLoseLivesSound();
 			collidedEnemy->Remove();
@@ -169,7 +242,6 @@ void GameplayState::HandleCollision(int newPlayerX, int newPlayerY)
 			m_player.DecrementLives();
 			if (m_player.GetLives() < 0)
 			{
-				//TODO: Go to game over screen
 				AudioManager::GetInstance()->PlayLoseSound();
 				m_pOwner->LoadScene(StateMachineExampleGame::SceneName::Lose);
 			}
@@ -177,7 +249,7 @@ void GameplayState::HandleCollision(int newPlayerX, int newPlayerY)
 		}
 		case ActorType::Money:
 		{
-			Money* collidedMoney = dynamic_cast<Money*>(collidedActor);
+			Money* collidedMoney = dynamic_cast<Money*>(actor);
 			assert(collidedMoney);
 			AudioManager::GetInstance()->PlayMoneySound();
 			collidedMoney->Remove();
@@ -187,7 +259,7 @@ void GameplayState::HandleCollision(int newPlayerX, int newPlayerY)
 		}
 		case ActorType::Key:
 		{
-			Key* collidedKey = dynamic_cast<Key*>(collidedActor);
+			Key* collidedKey = dynamic_cast<Key*>(actor);
 			assert(collidedKey);
 			if (!m_player.HasKey())
 			{
@@ -200,7 +272,7 @@ void GameplayState::HandleCollision(int newPlayerX, int newPlayerY)
 		}
 		case ActorType::Door:
 		{
-			Door* collidedDoor = dynamic_cast<Door*>(collidedActor);
+			Door* collidedDoor = dynamic_cast<Door*>(actor);
 			assert(collidedDoor);
 			if (!collidedDoor->IsOpen())
 			{
@@ -225,20 +297,20 @@ void GameplayState::HandleCollision(int newPlayerX, int newPlayerY)
 		}
 		case ActorType::ResetButton:
 		{
-			ResetButton* collidedResetButton = dynamic_cast<ResetButton*>(collidedActor);
+			ResetButton* collidedResetButton = dynamic_cast<ResetButton*>(actor);
 			assert(collidedResetButton);
 			collidedResetButton->Remove();
 			/*
 				BreakPoint added to step through the logic of the user colliding with the reset button,
 				where next we expect m_reset to be changed to true, break out of the cases, and the level to reload (line 147)
-				At this point in time the 
+				At this point in time the
 			*/
 			m_hitReset = true;
 			break;
 		}
 		case ActorType::Goal:
 		{
-			Goal* collidedGoal = dynamic_cast<Goal*>(collidedActor);
+			Goal* collidedGoal = dynamic_cast<Goal*>(actor);
 			assert(collidedGoal);
 			collidedGoal->Remove();
 			m_player.SetPosition(newPlayerX, newPlayerY);
@@ -247,20 +319,13 @@ void GameplayState::HandleCollision(int newPlayerX, int newPlayerY)
 		}
 		default:
 			break;
-		}
-	}
-	else if (m_pLevel->IsSpace(newPlayerX, newPlayerY)) // no collision
-	{
-		m_player.SetPosition(newPlayerX, newPlayerY);
-	}
-	else if (m_pLevel->IsWall(newPlayerX, newPlayerY))
-	{
-		// wall collision, do nothing
 	}
 }
 
 void GameplayState::Draw()
 {
+	const std::lock_guard<std::mutex> lock(m_drawMutex);
+
 	HANDLE console = GetStdHandle(STD_OUTPUT_HANDLE);
 	system("cls");
 

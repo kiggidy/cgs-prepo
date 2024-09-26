@@ -52,5 +52,6 @@ void Enemy::UpdateDirection(int& current, int& direction, int& movement)
 		current = movement * direction;
 		direction *= -1;
 	}
+
 }
 
